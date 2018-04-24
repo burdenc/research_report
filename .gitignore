@@ -1,0 +1,17 @@
+*.aux
+*.bbl
+*.blg
+*.idx
+*.ilg
+*.lof
+*.log
+*.lot
+*.sty
+*.ind
+*.toc
+Makediss
+zzclean
+
+README
+README.APA
+
