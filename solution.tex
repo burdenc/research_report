@@ -1,0 +1,43 @@
+\chapter{Solution}
+\index{Solution@\emph{Solution}}
+
+
+In this section we cover the specifics of both applying Hawkeye to GPU caching and what is required of a cache precleaning system. Our approach for Hawkeye consists of fine tuning the predictor to be more optimized for a GPU environment and evaluating the importance of replacement policies on GPUs. Additionally, we present the basic building blocks required for a cache precleaning system such as a modified deadblock predictor and a bandwidth usage prediction scheme.
+
+\section{Hawkeye on GPU}
+Adapting Hawkeye to GPUs requires proper training features, adapting caching mechanisms to support said features, and a basic understanding of the effects of latency on caching performance. We implement Hawkeye with two basic features: the Program Counter (PC) and PC combined with warp ID (PC+WID). Furthermore, we implement and evaluate Hawkeye on both the L1 and L2 cache.
+
+The PC is a very rich feature to train on in CPUs and is a very common feature in CPU cache replacement policies, prefetchers, and branch predictors. However, kernels on GPUs tend to be much smaller and have fewer accesses to global memory compared to processes on CPUs. These factors lead to a much smaller number of PCs that access global memory making it harder to use only PC as a feature for Hawkeye. To alleviate this lack of diversity in PC values, we can include warp ID as an additional feature. If we combine PC with the ID of the warp executing the memory access we can achieve a much more fine grained set of values to train our predictor on. We use Cantor pairing to act as a basic hashing mechanism between our PC and warp ID. While Cantor pairing gives decent performance for how simple it is, we believe Cantor pairing may be inefficient in hardware because of the multiplication step involved.
+
+Typically, on CPUs, complex cache replacement policies are reserved for last level caches where high latency is expected and more memory is available for storing meta-data. However, as we’ve seen in implementations like APCM, L1 caches on GPUs can actually have complex replacement policies while still seeing performance benefits. GPU on-chip memory is shared between the register file, shared memory, and L1 cache and can be used to store meta-data for our replacement policies. The additional meta-data required to implement Hawkeye can come both from the L1 cache itself or additional memory can be repurposed from the register file and shared memory if needed. Furthermore, because GPUs are inherently dependent on throughput and not latency, slight increases in latency at the L1 level don’t negatively impact performance as much on GPUs as they would on CPUs.
+Cache Precleaning
+
+To successfully hide write traffic, a proper solution requires two important predictions: predicting the final write to a line, and predicting the optimal time to commit our precleans. Given a trace of the program from previous executions, one could perfectly reorder writes to minimize the impact writes have on our memory systems. Unfortunately, even with perfect data, this optimal solution isn’t easy to define. Later in this section we will provide examples of how greedily choosing our precleans doesn’t necessarily lead to the most optimal solution. For now we will assume that greedily predicting the optimal line and time to preclean will achieve close to a true optimal solution.
+
+\section{Final Line Write Prediction}
+Deadblock predictors are useful for precleaning as we aren’t necessarily looking for what to evict, as eviction could unnecessarily hurt performance. We are in some ways trying to predict the future state of the cache. We would like to predict what is most likely to be the next evicted line with missing information such as all the series of accesses leading up to the eviction.
+
+\section{Bandwidth Variation and Prediction}
+A common code pattern in GPU programs is to load data in from global memory into shared memory, do parallel computations, then write back the result of the computations to global memory. Because of the nature of parallel programming, there are often times when different computation units need to synchronize and wait for all other units before continuing. A convenient time to do this synchronization is right after our cores write back to global memory. This synchronization ensures that all threads see the latest state of computation before continuing. Please refer to Figure \ref{f:cuda_sync} for basic pseudo-code that shows this coding pattern.
+
+\begin{figure}[htb]
+\begin{center}
+
+\begin{lstlisting}
+for (int i = 0; i < N; i++) {
+  int new_data_idx = getNextPieceOfData(threadIdx);
+  int* data = global_data[new_data_idx];
+  doComputations(data);
+  global_data[new_data_idx] = *data;
+  syncThreads();
+}
+\end{lstlisting}
+\caption{Pseudo-code for common synchronization code pattern in CUDA code.} This data is loaded in from DRAM (as this is the only way data can be shared across cores on a GPU) to local shared memory. When computations are done and stored back to global memory, we need to manually synchronize to prevent race conditions in the data.
+\label{f:cuda_sync}
+\end{center}
+\end{figure}
+\index{commands!environments!figure}%
+
+%Figure 2: Here we load in data assigned to our current thread (which may or may not change as the program goes on). This data is loaded in from DRAM (as this is the only way data can be shared across cores on a GPU) to local shared memory. When computations are done and stored back to global memory, we need to manually synchronize to prevent race conditions in the data.
+
+This synchronization technique yields a very useful bandwidth pattern for our technique of precleaning. As cores hit the synchronization barrier their bandwidth usage will drop off, making the synchronization point an opportune time to send out write backs. Furthermore, because these synchronization points are clearly defined in the code, it becomes very easy to predict when they are coming.

@@ -1,0 +1,10 @@
+\chapter{Related Work}
+\index{Related Work@\emph{Related Work}}
+
+This report draws upon many different concepts in computer architecture cited above, but the three related works we find the most relevant are Hawkeye’s original publication by Jain and Lin [cite], Koo et al’s Access Pattern-Aware Cache Management (APCM) paper [cite], and two patents by Nvidia that are similar to our idea of precleaning [cite,cite].
+
+Hawkeye, as touched on in the background section, uses OPTGen as an online method for approximating the optimal cache replacement policy. OPTGen is always trying to match two sequential accesses to a cache line over the program's execution. The time between these sequential accesses represents how long a line needs to be in the cache before getting a hit. With a 4-way associative cache OPTGen can only have 4 of these lines overlapping before a line must be evicted or bypassed. OPTGen, like Belady’s OPT, always prefers lines that has its next access the earliest, and thus prefers caching lines with the shortest interval between accesses. When OPTGen decides to forego caching a line, this line’s associated feature is trained negatively (cache unfriendly), and likewise OPTGen positively trains (cache friendly) features associated with lines that are successfully cached. When Hawkeye needs to evict a cache line it prefers to evict the lines that OPTGen determines to be cache unfriendly. When all lines are cache friendly, Hawkeye falls back on RRIP [cite] to decide which line to evict.
+
+(APCM)
+
+(Precleaning Patents)
