@@ -1,7 +1,7 @@
 \chapter{Experiments and Headroom}
 \index{Experiments and Headroom@\emph{Experiments and Headroom}}
 
-For our experiments we used GPGPUsim with a variety of programs from the Rodinia 2.0 and Lonestar 2.0 benchmark suites. Later in this section, we present promising results for applying Hawkeye to our GPU simulator environment. However, due to the lack of both time and domain knowledge, we were only able to gather basic headroom data for our idea of cache precleaning. In the following sections we will describe the details of the simulator used, discuss properties of our benchmarks and platform such as cache sensitivity and bandwidth usage, and finally present our headroom and actual performance improvements using Hawkeye and precleaning.
+For our experiments we used GPGPUsim with a variety of programs from the Rodinia 2.0 \cite{rodinia} and Lonestar 2.0 \cite{lonestar} benchmark suites. Later in this section, we present promising results for applying Hawkeye to our GPU simulator environment. However, due to the lack of both time and domain knowledge, we were only able to gather basic headroom data for our idea of cache precleaning. In the following sections we will describe the details of the simulator used, discuss properties of our benchmarks and platform such as cache sensitivity and bandwidth usage, and finally present our headroom and actual performance improvements using Hawkeye and precleaning.
 
 \section{Simulator}
 We use the GPGPUsim \cite{gpgpusim} simulator for our experiments, targeting the provided configuration that approximates the Nvidia Fermi architecture. This architecture supports 15 cores, each core consisting of 32 SIMD lanes and a maximum of 48 scheduled warps. Each core has a private 16 KB, 4-way set associative L1 cache with 128 bytes lines, and the entire system has a shared 786 KB, 8-way set associative L2 cache with 128 byte lines. The L2 cache is split into 12 portions and assigned to the 12 separate DRAM memory partitions. Finally, the L1 cache acts as write-through cache while the L2 cache acts as a write-back cache. A full list of relevant specifications can be seen in Table X [still to-do].
@@ -15,7 +15,7 @@ The baseline caches used within the simulator are all managed by a standard impl
 \section{Cache Sensitivity}
 Cache sensitivity tells us how much cache performance affects a given benchmark. We would expect that a benchmark with heavy code divergence or a small memory footprint would have little to no improvements even from an optimal cache implementation. By enlarging the cache and measuring the change in instructions per clock (IPC) over our baseline, we can get a rough approximation of how much a given benchmark relies on the cache. If we see little to no improvement when enlarging the cache, we wouldn't expect a change in replacement policy to have much affect on performance either. Benchmarks with large IPC improvements have high cache sensitivity and benchmarks that do roughly the same as baseline are considered to have low cache sensitivity. In our Hawkeye experiments, we would like to see large performance improvements on benchmarks that have high cache sensitivity, but see performance on par with LRU in benchmarks with low cache sensitivity. This experiment was motivated by the same study done by the APCM paper as referenced in our Related Work section earlier.
 
-In order to measure L1 cache sensitivity we quadrupled the size of our L1 cache and compared IPC performance against our baseline cache described above. We also repeated this experiment for our L2 cache. Our results for this experiment are presented below in Figure \ref{f:sensitvity}. Interestingly enough, we see that a number of graph algorithms including MST, SSSP, and BFS exhibit high levels of cache sensitivity. Graph algorithms on GPU tend to do poorly due to their irregular and hard to predict access patterns. The other interesting thing to note here is that between two runs of bfs we see different levels of cache sensitivity, this could be due to how the two data sets were generated or the differing sizes of the data sets. Another interesting thing to note is when increase the cache size for some of our benchmarks we actually perform even worse. We believe this strange result can be explained by Belady’s anomaly \cite{belady_anomaly}.
+In order to measure L1 cache sensitivity we quadrupled the size of our L1 cache and compared IPC performance against our baseline cache described above. We also repeated this experiment for our L2 cache. Our results for this experiment are presented below in Figure \ref{f:sensitivity}. Interestingly enough, we see that a number of graph algorithms including MST, SSSP, and BFS exhibit high levels of cache sensitivity. Graph algorithms on GPU tend to do poorly due to their irregular and hard to predict access patterns. The other interesting thing to note here is that between two runs of bfs we see different levels of cache sensitivity, this could be due to how the two data sets were generated or the differing sizes of the data sets. Another interesting thing to note is when increase the cache size for some of our benchmarks we actually perform even worse. We believe this strange result can be explained by Belady’s anomaly \cite{belady_anomaly}.
 
 \begin{figure}[htb]
 \begin{center}
@@ -40,7 +40,7 @@ To begin, we measured the per-feature bias of the OPTGen algorithm for both the 
 \end{figure}
 %Figure 5: Average per-feature bias for a variety of benchmarks, evaluated for PC and PC hashed with Warp ID features. Here the y-axis determines how useful our feature is for predicting on. The bias denotes the percentage of truth values that agree with our predicted value of cache friendly or unfriendly. Here 50\% would be equivalent to a random prediction. The final column denotes our average per-feature bias across all benchmarks.
 
-While we see that using PC alone does slightly better on average compared to PC+WID, we will show that this does not necessarily correlate with real world prediction performance. In Figure \ref{f:opt_uniq_vals} is a plot of the number of unique values seen per feature. We believe that PC+WID is preferable in some cases because the more diverse feature values allow us to capture more complicated patterns. Though it is important to note that this large increase in feature values requires adequate hardware to track, and more values being trained typically leads to slower training times. From these results, we believe there is more room for feature experimentation, especially involving dynamic warp IDs or better hashing algorithms.
+While we see that using PC alone does slightly better on average compared to PC+WID, we will show that this does not necessarily correlate with real world prediction performance. In Figure \ref{f:opt_uniq_vals} is a plot of the number of unique values seen per feature. We believe that PC+WID is preferable in some cases because the more diverse feature values allows Hawkeye to capture more complicated access patterns. Though, this large increase in potential feature values requires adequate hardware to track, and more values being trained typically leads to slower training times. In Figure \ref{f:cpu_opt_uniq_vals} we present the number of unique PC values seen by OPTGen when running on a last level cache on a CPU using SPEC 2006 \cite{spec} benchmarks and ChampSim \cite{champsim}. The number of unique values seen for PC+WID on GPU and PC on CPU are roughly on the same order of magnitude. We believe there is more room for feature experimentation, especially involving dynamic warp IDs or better hashing algorithms.
 
 
 \begin{figure}[htb]
@@ -48,6 +48,14 @@ While we see that using PC alone does slightly better on average compared to PC+
 \ \psfig{file=figs/opt_uniq_vals.eps,height=3.0in}
 \caption{Average unique values per feature.}
 \label{f:opt_uniq_vals}
+\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+\ \psfig{file=figs/cpu_opt_uniq_vals.eps,height=3.0in}
+\caption{Number of unique PC values seen on CPU SPEC Benchmarks.}
+\label{f:cpu_opt_uniq_vals}
 \end{center}
 \end{figure}
 %Figure 6: Average unique values per feature. This is a rough measure of the variance of our features on each benchmark. We would ideally see a feature with high spread and high bias.
