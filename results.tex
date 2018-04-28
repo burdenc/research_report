@@ -19,7 +19,7 @@ In order to measure L1 cache sensitivity we quadrupled the size of our L1 cache 
 
 \begin{figure}[htb]
 \begin{center}
-\ \psfig{file=figs/sensitivity.eps,height=3.0in}
+\ \psfig{file=figs/sensitivity.png,height=3.0in}
 \caption{Cache sensitivity for both L1 and L2 caches.} These numbers are percentage improvements over in IPC over baseline when quadrupling the size of each cache. Replacement for all cases is done with LRU.
 \label{f:sensitivity}
 \end{center}
@@ -33,8 +33,8 @@ To begin, we measured the per-feature bias of the OPTGen algorithm for both the 
 
 \begin{figure}[htb]
 \begin{center}
-\ \psfig{file=figs/per_feature_bias.eps,height=3.0in}
-\caption{Average per-feature prediction bias.}
+\ \psfig{file=figs/per_feature_bias.png,height=3.0in}
+\caption{Average per-feature prediction bias. The bias denotes the percentage of truth values that agree with our predicted value of cache friendly or unfriendly. Here 50\% would be equivalent to a random prediction. The final column denotes our average per-feature bias across all benchmarks.}
 \label{f:feature_bias}
 \end{center}
 \end{figure}
@@ -45,7 +45,7 @@ While we see that using PC alone does slightly better on average compared to PC+
 
 \begin{figure}[htb]
 \begin{center}
-\ \psfig{file=figs/opt_uniq_vals.eps,height=3.0in}
+\ \psfig{file=figs/opt_uniq_vals.png,height=3.0in}
 \caption{Average unique values per feature.}
 \label{f:opt_uniq_vals}
 \end{center}
@@ -53,23 +53,30 @@ While we see that using PC alone does slightly better on average compared to PC+
 
 \begin{figure}[htb]
 \begin{center}
-\ \psfig{file=figs/cpu_opt_uniq_vals.eps,height=3.0in}
-\caption{Number of unique PC values seen on CPU SPEC Benchmarks.}
+\ \psfig{file=figs/cpu_opt_uniq_vals.png,height=3.0in}
+\caption{Number of unique PC values seen on CPU SPEC Benchmarks. Notice that these numbers are roughly on the same order of magnitude as the number of PC+WID hashed values we see on GPU.}
 \label{f:cpu_opt_uniq_vals}
 \end{center}
 \end{figure}
-%Figure 6: Average unique values per feature. This is a rough measure of the variance of our features on each benchmark. We would ideally see a feature with high spread and high bias.
 
 In our full performance tests we measured two important metrics: post-warmup cache miss rate, and IPC improvement over baseline. For the post-warmup miss rate metric, we ignore all cache misses before a specified warmup time, as most misses at the beginning of a program are compulsory and cannot be avoided. We found that a post-warmup time of 3,000,000 cycles fits most of the benchmarks being used (with the exception of HOTSPOT which ends before 3,000,000 cycles). We present the miss rate improvement over LRU in Figure \ref{f:hawkeye_pw_miss_rate}. As mentioned above, PC hashed with warp ID ends up performing better than just PC.
 
 
 \begin{figure}[htb]
 \begin{center}
-\ \psfig{file=figs/hawkeye_pw_miss_rate.eps,height=3.0in}
-\caption{Miss rate improvement over LRU (percentage points).}
+\ \psfig{file=figs/hawkeye_pw_miss_rate.png,height=3.0in}
+\caption{Miss rate improvement over LRU. This improvement is measured in percentage points over the miss rate observed with LRU.}
 \label{f:hawkeye_pw_miss_rate}
 \end{center}
 \end{figure}
 %Figure 7: Miss rate improvement over LRU. This improvement is measured in percentage points over the miss rate observed with LRU.
 
 \section{Precleaning}
+
+The results for our idea of precleaning include a coarse measure of headroom and performance tests of basic predictors we tried. The headroom tests give a basic, yet very idealized view of how much room we have to improve. Like our Hawkeye results, we measure performance benefits in IPC improvement over baseline with no precleaning enabled.
+
+For our headroom study we measure performance improvement when assuming no cost for executing a write-back. In a completely ideal scenario, a precleaner would be able to completely hide the effects of write-back being sent to main memory. This experiment also gives us an idea of which benchmarks are bandwidth sensitive, much like our cache sensitivity study earlier. We refer to Figure \ref{f:preclean_headroom} for the results of our headroom. [Elaborate when data comes in.]
+
+We also implemented a basic implementation of what we consider a functional precleaning unit. This precleaning unit was implemented in the L2 cache, using a slight modification to Cache Burst \cite{cache_burst} to predict when a line should be precleaned. Referring to Figure \ref{f:preclean_perf} we see little impact to performance with our implementation of a precleaning unit.
+
+Our idea of precleaning certainly needs more evaluation and exploration of prediction mechanisms beyond what is provided in this report. We believe with more time and better domain knowledge we could make real performance improvements. Though it remains uncertain if these performance improvements would be significant enough to warrant the cost of an entirely new L2 prediction unit that needs to evaluate precleaning candidates, clean lines, and predict bandwidth usage on a regular basis.
