@@ -1,8 +1,16 @@
 \chapter{Future Work and Remarks}
-\index{Future Work and Remarks@\emph{Future Work and Remarks}}
+In this section we touch on future work and next steps for both Hawkeye and precleaning. We also talk about lessons learned from the research and how the author can improve their research work in the future. Furthermore, we give suggestions for anyone  hoping to do similar research on GPUs.
 
+\section{Future Work}
 While the results from the previous section show promise for both Hawkeye and precleaning applied to GPUs, there's still considerable work before either of these ideas can be implemented. Hawkeye appears to give decent performance improvements, but it needs more tuning of the predictors and features. Precleaning also shows promising headroom, but we would like to explore better predictors and more fitting metrics for bandwidth usage and data divergence.
 
 Hawkeye gives good results, but the performance impact of the additional meta-data store still needs to be fully evaluated, and we need to explore potentially better OPTgen training features. Furthermore, it is unclear whether Hawkeye is a good fit for both the L1 and L2 caches on GPU, and we would also like to see if we could apply warp sampling techniques as seen in APCM. Finally, given the results in the previous section, we are unsure whether or not the performance gains are worth the cost of implementation when APCM seems to give better results.
 
 Precleaning, as mentioned before, shows promise, but it requires a significant amount of additional work to fully evaluate. Currently one of the limiting factors to additional research is a lack of well defined metrics that can easily measure performance improvements. IPC improvements and memory bandwidth usage are both fairly coarse grained metrics. We would like to find a metric similar to miss rate and misses per thousand instructions (MPKI). 
+
+\section{Remarks and Lessons Learned}
+We believe that the results of this research will be useful, but we are slightly disappointed by the amount of progress made and how we left certain avenues of research unexplored. One of the biggest hurdles to overcome was understanding both the landscape of GPU programming and the tooling provided for GPU simulation.
+
+Our suggestions to others hoping to pick up from this research or study other GPU architecture topics: work with a known environment, use a powerful, highly parallel machine, and explore alternate tooling. GPGPUsim is quite old at the time of writing, and setting up the simulator reliably will only get harder as time goes on. Finding the appropriate versions of gcc, g++, and CUDA can be difficult on modern operating systems (Ubuntu 16.04 LTS). For this reason, if one decides to use GPGPUsim, we suggest working with a known environment that has been successfully used for GPU research in the past. We also suggest using a highly parallel machine. GPGPUsim will only use a single core per simulation, but each simulation can take upwards of 24 hours with no option for skipping warmup periods. One can save a lot of time by running all relevant benchmarks over the course of a day.
+
+Finally, as mentioned before, GPGPUsim hasn't received substantial updates in almost 4 years. GPGPUsim was vital for getting the results given in this paper, but in the future it will only get further from state of the art GPU architecture. Thus, we suggest exploring simulators that are more regularly updated and maintained.

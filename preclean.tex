@@ -45,7 +45,7 @@
 
 \address{1015 Strickland Dr.\\ Austin, Texas 78748}  % Required
 
-\title{Evaluating Headroom for Hawkeye and Precleaning on GPUs}
+\title{Evaluating Headroom for Smart Caching Policies on GPUs}
                                                     % Required
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -282,11 +282,11 @@
 \utabstract
 \index{Abstract}%
 \indent
-This report evaluates potential IPC improvements of replacement policies and bandwidth management in GPU caching. Over the past semester, my research has focused on applying the Hawkeye cache replacement policy on GPUs and exploring headroom of preemptively writing back dirty cache lines. In the interest of time and convenience, this report will cover both Hawkeye and precleaning despite each idea being fairly distinct and lacking overlap in implementation.
+This report evaluates potential Instruction Per Clock (IPC) improvements of replacement policies and bandwidth management in GPU caching. Over the past semester, my research has focused on applying the Hawkeye cache replacement policy on GPUs and exploring headroom of preemptively writing back dirty cache lines. In the interest of time and convenience, this report will cover both Hawkeye and precleaning despite each idea being fairly distinct and lacking overlap in implementation.
 
-Our first goal is to reduce L1 and L2 GPU cache miss rates by implementing the Hawkeye cache replacement policy, a reinforcement learning algorithm.  Reinforcement learning requires constant input from an oracle to determine if its predictions are performing well. By using OPTGen, an online approximation of optimal cache replacement, Hawkeye attempts to learn the when cache lines have a high chance of reuse. While we show promising performance improvements with Hawkeye, only a select few GPU benchmarks are sensitive to the performance of the cache. We believe that algorithms that require large, complex access patterns but show little to no code-divergence are where Hawkeye can provide the most performance benefits. From our experiments, we show that Hawkeye, on average, tends to do better than if not on par with LRU as a cache replacement policy.
+Our first goal is to reduce L1 and L2 GPU cache miss rates by implementing the Hawkeye cache replacement policy, a reinforcement learning algorithm.  Reinforcement learning requires constant input from an oracle to determine if its predictions are performing well. By using OPTGen, an online approximation of optimal cache replacement, Hawkeye attempts to learn the when cache lines have a high chance of reuse. While we show promising performance improvements with Hawkeye, only a select few GPU benchmarks are sensitive to the performance of the cache. We believe that algorithms that require large, complex access patterns but show little to no code-divergence are where Hawkeye can provide the most performance benefits. From our experiments, we show that Hawkeye, on average, tends to do better than if not on par with Least Recently Used (LRU) as a cache replacement policy.
 
-We also introduce the idea of precleaning, an alternative to write-back or write-through caching that aims to spread out write bandwidth. Committing L2 writes to DRAM when memory congestion is low can hide or lower the performance impact of said write. The idea of precleaning shows promise, but evaluating precleaning fully requires more research in GPU access patterns and prediction techniques.
+We also introduce the idea of precleaning, an alternative to write-back or write-through caching that aims to spread out write bandwidth. Committing L2 writes to main memory when memory congestion is low can hide or lower the performance impact of said write. The idea of precleaning shows promise, but evaluating precleaning fully requires more research in GPU access patterns and prediction techniques.
 
 \tableofcontents   % Table of Contents will be automatically
                    % generated and placed here.
@@ -344,10 +344,10 @@ We also introduce the idea of precleaning, an alternative to write-back or write
 % If you have only one appendix, use the command \appendix instead
 % of \appendices.
 %
-%\appendices
+\appendices
 %\index{Appendices@\emph{Appendices}}%
 %
-%\include{chapter-appendix1}
+\include{appendix}
 %
 %\include{chapter-appendix2}
 %
