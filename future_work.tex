@@ -1,3 +1,8 @@
 \chapter{Future Work and Remarks}
 \index{Future Work and Remarks@\emph{Future Work and Remarks}}
 
+While the results from the previous section show promise for both Hawkeye and precleaning applied to GPUs, there's still considerable work before either of these ideas can be implemented. Hawkeye appears to give decent performance improvements, but it needs more tuning of the predictors and features. Precleaning also shows promising headroom, but we would like to explore better predictors and more fitting metrics for bandwidth usage and data divergence.
+
+Hawkeye gives good results, but the performance impact of the additional meta-data store still needs to be fully evaluated, and we need to explore potentially better OPTgen training features. Furthermore, it is unclear whether Hawkeye is a good fit for both the L1 and L2 caches on GPU, and we would also like to see if we could apply warp sampling techniques as seen in APCM. Finally, given the results in the previous section, we are unsure whether or not the performance gains are worth the cost of implementation when APCM seems to give better results.
+
+Precleaning, as mentioned before, shows promise, but it requires a significant amount of additional work to fully evaluate. Currently one of the limiting factors to additional research is a lack of well defined metrics that can easily measure performance improvements. IPC improvements and memory bandwidth usage are both fairly coarse grained metrics. We would like to find a metric similar to miss rate and misses per thousand instructions (MPKI). 
