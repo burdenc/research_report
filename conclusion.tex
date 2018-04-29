@@ -1,3 +1,3 @@
 \chapter{Conclusion}
-\index{Conclusion@\emph{Conclusion}}
 
+In this research report we evaluated the cache replacement policy Hawkeye on GPUs and provided coarse headroom for the idea of precleaning. We believe both of these ideas can provide benefits to GPU performance, but current implementations are fairly situational and require the code being run to be sensitive to caching performance and bandwidth usage. We conclude that Hawkeye will provide the most benefit when applied at the L1 cache with just PC as the feature for OPTgen. However, from our sensitivity study, we believe there's more room for improvement at both the L1 and L2 caching replacement policies. Furthermore, our idea of precleaning requires more sophisticated predictors and metrics before it can be fully evaluated.
