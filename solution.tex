@@ -33,7 +33,7 @@ for (int i = 0; i < N; i++) {
   syncThreads();
 }
 \end{lstlisting}
-\caption{Pseudo-code for common synchronization code pattern in CUDA code.} This data is loaded in from DRAM (as this is the only way data can be shared across cores on a GPU) to local shared memory. When computations are done and stored back to global memory, we need to manually synchronize to prevent race conditions in the data.
+\caption{Pseudo-code for common synchronization code pattern in CUDA code. This data is loaded in from DRAM (as this is the only way data can be shared across cores on a GPU) to local shared memory. When computations are done and stored back to global memory, we need to manually synchronize to prevent race conditions in the data.}
 \label{f:cuda_sync}
 \end{center}
 \end{figure}

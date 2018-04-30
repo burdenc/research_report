@@ -282,7 +282,7 @@
 \utabstract
 \index{Abstract}%
 \indent
-This report evaluates two distinct methods of improving the performance of GPU memory systems. Over the past semester, my research has focused on applying the Hawkeye cache replacement policy on GPUs and exploring headroom of preemptively writing back dirty cache lines.
+This report evaluates two distinct methods of improving the performance of GPU memory systems. Over the past semester, our research has focused on applying the Hawkeye cache replacement policy on GPUs and exploring headroom of preemptively writing back dirty cache lines.
 %In the interest of time and convenience, this report will cover both Hawkeye and precleaning despite each idea being fairly distinct and lacking overlap in implementation.
 
 Our first goal is to reduce L1 and L2 GPU cache miss rates by implementing the Hawkeye cache replacement policy. Hawkeye calculates the optimal cache replacement policy on previous cache accesses in order to train its predictor for future caching decisions. While we show promising performance improvements with Hawkeye, only a select few GPU benchmarks are sensitive to the performance of the cache. From our experiments, we show that Hawkeye, on average, gives an IPC improvement of 3.57\% and 0.56\% over Least Recently Used (LRU) when applied to the L1 and L2 caches respectively.
