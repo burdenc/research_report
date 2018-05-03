@@ -58,6 +58,14 @@ For our headroom study we measure performance improvement when assuming no cost 
 \end{center}
 \end{figure}
 
-We also evaluate our basic implementation of a precleaning unit. Referring to Figure \ref{f:preclean_perf} we see little impact to performance with our implementation of a precleaning unit.
+We also evaluate our basic implementation of a precleaning unit. Referring to Figure \ref{f:preclean_perf} we see little impact to performance with our implementation of a precleaning unit. While we see a small increase in performance from BH, we see a more significant decrease in performance from Rodinia's implementation of BFS. These poor results highlight the difficulty of fine tuning a predictor for precleaning. Much like prefetching, it is easy to make a precleaner too aggressive and actually hurt performance.
+
+\begin{figure}[htb]
+\begin{center}
+\ \psfig{file=figs/preclean_ipc.png,width=\textwidth}
+\caption{IPC improvement over LRU when cleaning the least recently used line across all sets.}
+\label{f:preclean_perf}
+\end{center}
+\end{figure}
 
 Our idea of precleaning certainly needs more evaluation and exploration of prediction mechanisms beyond what is provided in this report. We believe with more time and better domain knowledge we could make real performance improvements. Though it remains uncertain if these performance improvements would be significant enough to warrant the cost of an entirely new prediction unit in the L2 cache. This prediction unit could be costly as it needs to evaluate precleaning candidates, clean lines, and predict bandwidth usage on a regular basis.
